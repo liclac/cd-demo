@@ -1,0 +1,20 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+    - docker build -t uppfinnarn/cd-demo .
+
+test:
+  override:
+    - docker run uppfinnarn/cd-demo bash -c 'go get -t . && go test ./...'
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - docker tag uppfinnarn/cd-demo uppfinnarn/cd-demo:v$CIRCLE_BUILD_NUM
+      - docker push uppfinnarn/cd-demo:v$CIRCLE_BUILD_NUM
+      - docker push uppfinnarn/cd-demo
