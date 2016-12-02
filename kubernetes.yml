@@ -1,0 +1,41 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cd-demo
+  labels:
+    app: cd-demo
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: cd-demo
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: cd-demo
+  labels:
+    app: cd-demo
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cd-demo
+    spec:
+      containers:
+      - name: cd-demo
+        image: uppfinnarn/cd-demo
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
